@@ -6,19 +6,21 @@ import connectDB from "./db/index.js";
 
 //error handling important concep
 
-dotenv.config({
+dotenv.config({ //it's just a configuration
     path:'./env'
 })
 
-
-
-
-
 connectDB()
+.then(() => {
+    app.listen(process.env.PORT || 8000,  () => {
+        console.log(`Server is running at port : ${process.env.PORT}`)
+    })
+})
+.catch((err) => {
+    console.log("MONGO DB connection fail", err);
+})
 
-
-
-
+//then method is for successful call whereas catch method is for error call
 
 
 //MY FIRST APPROACH WHICH I WOULD NOT PREFER
@@ -43,3 +45,7 @@ connectDB()
 //     throw err
 //    }
 // })()
+
+
+
+
