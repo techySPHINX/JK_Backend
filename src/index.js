@@ -3,7 +3,7 @@
 
 import dotenv from "dotenv";
 import connectDB from "./db/index.js";
-
+import {app} from './app.js';
 //error handling important concep
 
 dotenv.config({ //it's just a configuration
