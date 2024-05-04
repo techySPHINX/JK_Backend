@@ -1,6 +1,6 @@
 # Starting of Backend Journey with advanced version.
 
-##Backend Essentials:
+## Backend Essentials:
 
  Databases : Relational (SQL) or NoSQL databases store and manage your application's data.
  APIs (Application Programming Interfaces) : These act as intermediaries allowing your frontend (user interface) to communicate with the backend 
