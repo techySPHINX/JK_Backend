@@ -2,11 +2,13 @@
 
 ##Backend Essentials:
 
-# Databases #: Relational (SQL) or NoSQL databases store and manage your application's data.
-# APIs (Application Programming Interfaces) #: These act as intermediaries allowing your frontend (user interface) to communicate with the backend and access data.
-# Servers #: These computers run your backend code and handle requests from the frontend.
-# Server-side Logic #: The code that processes data, interacts with databases, and defines application behavior runs on the server. (e.g., Node.js, Python)
-# Security #: Implementing security measures like authentication and authorization is crucial to protect user data and application integrity.
+ Databases : Relational (SQL) or NoSQL databases store and manage your application's data.
+ APIs (Application Programming Interfaces) : These act as intermediaries allowing your frontend (user interface) to communicate with the backend 
+ and access data.
+ Servers : These computers run your backend code and handle requests from the frontend.
+ Server-side Logic #: The code that processes data, interacts with databases, and defines application behavior runs on the server. (e.g., Node.js, 
+ Python)
+ Security #: Implementing security measures like authentication and authorization is crucial to protect user data and application integrity.
 
 ## Industry-Standard File Structure:
 
