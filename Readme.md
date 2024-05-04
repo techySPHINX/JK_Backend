@@ -15,11 +15,17 @@
 While specific structures may vary, here's a general layout for a well-organized backend project:
 
 config: Configuration files for environment variables, database connections, etc.
+
 models: Files defining data models representing your application's data structure. (e.g., User model, Product model)
+
 routes: Files handling incoming API requests and routing them to the appropriate functions.
+
 controllers: Files containing logic to handle specific functionalities like user registration or data retrieval.
+
 middleware: Reusable code modules that perform tasks like logging or authentication before requests reach controllers.
+
 utils: Helper functions used across different parts of your backend codebase.
+
 tests: Test files to ensure your backend code functions as expected. (Highly recommended for maintainability!)
 
 
