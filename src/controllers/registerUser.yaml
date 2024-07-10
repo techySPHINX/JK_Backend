@@ -1,0 +1,88 @@
+# Frontend Validation (assumed to be handled by your frontend framework)
+- name: Validate User Details
+  description: Frontend validation ensures required fields (username, email) are not empty.
+
+# User Existence Check (Mongoose)
+- name: Check for Existing User
+  description:
+    - Query the database for users with matching username or email.
+    - If found, return an error message or redirect to a registration conflict page.
+  steps:
+    - type: mongodb
+      collection: users  # Assuming your user collection
+      operation: find
+      filter:
+        $or:
+          - username: "{{ user.username }}"  # Replace with actual user data binding mechanism
+          - email: "{{ user.email }}"
+    - name: Check Existence Result
+      if: "{{ results.length > 0 }}"  # Check if any matching user found
+        type: fail
+        message: "User with username or email already exists."
+
+# Image Upload (Cloudinary)
+- name: Upload Images (Optional)
+  description:
+    - Upload any provided images (avatar or others) to Cloudinary using your API credentials.
+    - Store the returned URLs in the user object.
+  when: "{{ user.avatar != None or user.images != None }}"  # Check for image presence
+  steps:
+    - type: cloudinary
+      action: upload  # Assuming upload action for Cloudinary
+      api_key: "{{ your_cloudinary_api_key }}"  # Replace with your Cloudinary API key
+      api_secret: "{{ your_cloudinary_api_secret }}"  # Replace with your Cloudinary API secret
+      cloud_name: "{{ your_cloudinary_cloud_name }}"  # Replace with your Cloudinary cloud name
+      file: "{{ user.avatar }}"  # Update with actual image data binding
+      # Add steps for additional images if applicable
+    - name: Store Image URLs
+      set:
+        user.avatarUrl: "{{ results.url }}"  # Update field names as needed
+        # Add assignments for additional image URLs
+
+# User Object Creation
+- name: Create User Object
+  description:
+    - Construct a new user object with validated and uploaded data.
+    - Exclude password and refresh token fields for security reasons.
+  set:
+    userObject:
+      username: "{{ user.username }}"
+      email: "{{ user.email }}"
+      # Add other user fields (name, bio, etc.)
+      avatarUrl: "{{ user.avatarUrl }}"  # Assuming avatarUrl is set from upload
+      # Add additional image URLs if applicable
+      createdAt: "{{ now() }}"  # Capture creation timestamp
+
+# User Creation (Mongoose)
+- name: Create User in Database
+  description:
+    - Save the user object to the database using Mongoose.
+    - Handle potential errors (e.g., database connectivity issues).
+  type: mongodb  # Assuming Mongoose integration
+  collection: users
+  operation: insertOne
+  document: "{{ userObject }}"
+  on_error:
+    type: fail
+    message: "Error creating user in database: {{ error }}"
+
+# User Creation Success
+- name: User Created Successfully
+  when: "{{ results.acknowledged }}"  # Check for successful insertion
+  description:
+    - User creation was successful.
+    - Return the created user object (without password and refresh token).
+  set:
+    response:
+      username: "{{ userObject.username }}"
+      email: "{{ userObject.email }}"
+      # Add other relevant user data (excluding password and refresh token)
+
+# Overall Workflow Success/Failure
+- name: Workflow Result
+  description:
+    - Returns either the created user object or an error message.
+  choose:
+    - expression: "{{ results.acknowledged }}"  # Check for successful user creation
+      then: "{{ response }}"
+    - otherwise: "{{ steps.Check for Existing User.message }}"  # Fallback to existing user error
