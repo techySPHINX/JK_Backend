@@ -88,6 +88,6 @@ userSchema.methods.generateRefreshToken = function () {
       expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
     }
   );
-};
+}; // refresh token is basically used when user try to access after so many days crosiing acces token expiry there for customer experience better
 
 export const User = mongoose.model("User", userSchema);

@@ -73,7 +73,7 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   const createdUser = await User.findById(user._id).select(
-    "-password -refreshToken"
+    "-password -refreshToken" // without taking password and refresh token
   );
 
   if (!createdUser) {
@@ -139,7 +139,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     req.user._id,
     {
       $set: {
-        refreshToken: undefined,
+        refreshToken: undefined, //make delete throgh deactivating refreshtoken
       },
     },
     {
@@ -150,7 +150,7 @@ const logoutUser = asyncHandler(async (req, res) => {
   const options = {
     httpOnly: true,
     secure: true,
-  };
+  }; // secured options
 
   return res
     .status(200)
