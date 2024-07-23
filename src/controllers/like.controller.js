@@ -1,80 +1,122 @@
 import mongoose, { isValidObjectId } from "mongoose";
-
-
 import { Like } from "../models/like.model.js";
-
-
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const toggleVideoLike = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
+  const userId = req.user._id; // Assuming user is authenticated
 
-  // Check if videoId is a valid mongoose ObjectId
-  if (!isValidObjectId(videoId)) {
-    throw new ApiError(400, "Invalid video ID");
-  }
+  const like = await Like.findOne({ user: userId, contentId: videoId, contentType: 'video' });
 
-  try {
-    // Find the video document (assuming you have a Video model)
-    const video = await Video.findById(videoId);
-
-    if (!video) {
-      throw new ApiError(404, "Video not found");
-    }
-
-    // Check if the user has already liked the video
-    const likedVideo = await Like.findOne({ video: videoId, user: req.user._id });
-
-    if (likedVideo) {
-      // Unlike the video
-      await Like.deleteOne({ _id: likedVideo._id });
-      video.likes.pull(req.user._id); // Assuming 'likes' is an array in the Video model
-      await video.save();
-      return ApiResponse(res, 200, "Unliked video successfully");
+try {
+    if (like) {
+      // User already liked the video, so unlike it
+      await Like.deleteOne({ _id: like._id });
+      res.status(200).json(new ApiResponse(true, 'Video unliked'));
     } else {
-      // Like the video
-      const newLike = new Like({ video: videoId, user: req.user._id });
-      await newLike.save();
-      video.likes.push(req.user._id);
-      await video.save();
-      return ApiResponse(res, 200, "Liked video successfully");
+      // User didn't like the video, so like it
+      await Like.create({ user: userId, contentId: videoId, contentType: 'video' });
+      res.status(201).json(new ApiResponse(true, 'Video liked'));
     }
-  } catch (error) {
-    throw new ApiError(500, error.message);
-  }
+} catch (error) {
+  throw new ApiError(500, error.message);
+}
 });
 
 const toggleCommentLike = asyncHandler(async (req, res) => {
   const { commentId } = req.params;
+  const userId = req.user._id; // Assuming user is authenticated
 
-  // Similar validation and logic as in toggleVideoLike, but for comments
-  // Assuming you have a Comment model and 'likes' array in it
+  const like = await Like.findOne({ user: userId, contentId: commentId, contentType: 'comment' });
+
+  try {
+    if (like) {
+      // User already liked the comment, so unlike it
+      await Like.deleteOne({ _id: like._id });
+      res.status(200).json(new ApiResponse(true, 'Comment unliked'));
+    } else {
+      // User didn't like the comment, so like it
+      await Like.create({ user: userId, contentId: commentId, contentType: 'comment' });
+      res.status(201).json(new ApiResponse(true, 'Comment liked'));
+    }
+  } catch (error) {
+    throw new ApiError(500, error.message);
+  }
 });
 
 const toggleTweetLike = asyncHandler(async (req, res) => {
   const { tweetId } = req.params;
+  const userId = req.user._id; // Assuming user is authenticated
 
-  // Similar validation and logic as in toggleVideoLike, but for tweets
-  // Assuming you have a Tweet model and 'likes' array in it
-});
+  const like = await Like.findOne({ user: userId, contentId: tweetId, contentType: 'tweet' });
 
-const getLikedVideos = asyncHandler(async (req, res) => {
   try {
-    // Find all videos liked by the user
-    const likedVideos = await Like.find({ user: req.user._id }).populate('video'); // Assuming 'video' is a reference field to the Video model
-
-    return ApiResponse(res, 200, likedVideos);
+    if (like) {
+      // User already liked the tweet, so unlike it
+      await Like.deleteOne({ _id: like._id });
+      res.status(200).json(new ApiResponse(true, 'Tweet unliked'));
+    } else {
+      // User didn't like the tweet, so like it
+      await Like.create({ user: userId, contentId: tweetId, contentType: 'tweet' });
+      res.status(201).json(new ApiResponse(true, 'Tweet liked'));
+    }
   } catch (error) {
     throw new ApiError(500, error.message);
   }
+});
+
+const getLikedVideos = asyncHandler(async (req, res) => {
+  const userId = req.user._id; // Assuming user is authenticated
+
+  const likedVideos = await Like.find({ user: userId, contentType: 'video' })
+    .populate('contentId') // Populate the video object
+    .select('contentId'); // Select only the video ID
+
+  res.status(200).json(new ApiResponse(true, 'Liked videos fetched', likedVideos));
 });
 
 export {
   toggleCommentLike,
   toggleTweetLike,
   toggleVideoLike,
-  getLikedVideos,
+  getLikedVideos
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
